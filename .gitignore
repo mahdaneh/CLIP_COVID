@@ -1,0 +1,9 @@
+./mlruns
+*.ipynb
+__pycache__/
+*.pyc
+.env
+.DS_Store
+.vscode/
+.idea/
+mlflow.db
