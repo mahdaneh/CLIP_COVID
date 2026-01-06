@@ -13,7 +13,7 @@ caption generation, dataset handling, and evaluation, primarily targeting medica
 
 
 
-## 🧠 Background
+## Background
 
 Large vision–language models such as **CLIP** enable
 zero-shot inference by learning aligned image and text embeddings
@@ -24,7 +24,7 @@ how well such models generalize to
 where distribution shift and domain mismatch are common challenges.
 
 
-## ⚙️ Installation
+## Installation
 
 Clone the repository:
 
@@ -46,7 +46,7 @@ Install dependencies:
 pip install -r requirements.txt
 ```
 
-## 🚀 Usage
+##  Usage
 
 ### 🔍 Zero-Shot Image Classification
 
@@ -70,7 +70,7 @@ Metrics may include accuracy, similarity scores, or ranking-based measures depen
 
 ---
 
-## 📂 Dataset Assumptions
+## Dataset Assumptions
 
 - Images stored in a directory (e.g., `.png`, `.jpg`)
 - Optional annotation files in CSV or JSON format
@@ -83,7 +83,7 @@ You can adapt this file to support public datasets such as:
 
 ---
 
-## 📈 Example Output
+## Example Output
 
 Example zero-shot prediction:
 
@@ -101,7 +101,7 @@ Example caption:
 
 ---
 
-## ⚠️ Limitations
+##  Limitations
 - This project is **for research purposes only** and not for clinical use
 
 ---
