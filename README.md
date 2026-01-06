@@ -7,7 +7,8 @@ for COVID-19–related medical image understanding,
 with a focus on **zero-shot inference** and **vision–language alignment**.
 
 The repository contains scripts for zero-shot classification,
-caption generation, dataset handling, and evaluation, primarily targeting medical images such as chest X-rays.
+caption generation (for fine-tuning CLIP), dataset handling, and evaluation, primarily targeting medical images such as chest X-rays.
+
 
 ---
 
@@ -24,6 +25,21 @@ how well such models generalize to
 where distribution shift and domain mismatch are common challenges.
 
 
+## Results and explanation
+
+
+| Method                                        | Acc   | f1-score | Precision | Recall |
+|-----------------------------------------------|-------|----------|-----------|--------|
+| CLIP (openAI)                                 | 31.57 | 16.35    | 28.23     |33.36|
+| CLIP ( fine-tuned)                            | 57.72 | 54.47    | 59.62     |58.01|
+| CLIPVisionEncoder (trained a classifier head) | 87.8  | 87.78    | 88.25     |88.0|
+
+
+The table above summarizes the performance of different CLIP-based methods
+on COVID-19 chest X-ray classification tasks.
+The results indicate that fine-tuning the CLIP model significantly improves classification accuracy compared to using the pre-trained model directly.
+Additionally, training a classifier head on top of the CLIP vision encoder yields the best performance, 
+demonstrating the effectiveness of adapting pre-trained models to specific medical imaging tasks.
 ## Installation
 
 Clone the repository:
@@ -83,21 +99,6 @@ You can adapt this file to support public datasets such as:
 
 ---
 
-## Example Output
-
-Example zero-shot prediction:
-
-```json
-{
-  "image": "patient_012.png",
-  "prediction": "COVID-19",
-  "confidence": 0.62
-}
-```
-
-Example caption:
-
-> “Chest X-ray showing bilateral lung opacities suggestive of viral pneumonia.”
 
 ---
 
