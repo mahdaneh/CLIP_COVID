@@ -1,7 +1,6 @@
 # CLIP for detecting COVID
 
-This is a research-oriented 
-project that explores the use of 
+In this project, we explore the use of 
 **CLIP (Contrastive Language–Image Pretraining)** 
 for COVID-19–related medical image understanding,
 with a focus on **zero-shot inference** and **vision–language alignment**.
