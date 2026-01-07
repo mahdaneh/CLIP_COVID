@@ -65,7 +65,7 @@ This project investigates **how well CLIP generalizes to medical imaging**, part
 
 - **Zero-shot CLIP is insufficient** for COVID-19 X-ray classification due to domain shift.  
 - Fine-tuning CLIP improves results, but the **best performance comes from a classifier on top of the frozen CLIP vision encoder**.  
-- This approach is especially practical for **limited-resource devices** with low GPU memory.  
+- "Classifier on CLIP Vision Encoder " is especially practical for **limited-resource devices** with low GPU memory.  
 - Overall, CLIP provides a strong foundation, but **specialized adaptation is necessary** for medical imaging tasks.
 
 ---
