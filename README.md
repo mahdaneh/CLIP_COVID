@@ -1,53 +1,74 @@
-# CLIP for detecting COVID
+# CLIP for COVID-19 Detection from Chest X-rays
 
-In this project, we explore the use of 
-**CLIP (Contrastive Language–Image Pretraining)** 
-for COVID-19–related medical image understanding,
-with a focus on **zero-shot inference** and **vision–language alignment**.
-We used COVID-QU-Ex dataset (contains training, validation, and test sets), and the task is to classify x-ray images into **covid**, **normal**, and **non-covid(Pneumonia)**.
-To read more about the used dataset, read "Dataset" section [here](https://github.com/mahdaneh/COVID_transformer).
+This experimental project explores the use of **CLIP (Contrastive Language–Image Pretraining)** for COVID-19 medical image understanding, focusing on **zero-shot inference** and **vision–language alignment**.  
 
-The repository contains scripts for fine-tuning of a CLIP model (using LORA), zero-shot classification,
-caption generation by BLIP (for fine-tuning CLIP), dataset handling, and evaluation, primarily targeting medical images such as chest X-rays. 
+We show that **zero-shot CLIP alone is insufficient** for COVID-19 chest X-ray classification due to domain shift: medical images differ significantly from the natural images CLIP was trained on.
 
+---
+
+## Dataset
+
+We used the **COVID-QU-Ex dataset**, which includes training, validation, and test sets. The task is to classify X-ray images into:
+
+- `COVID`  
+- `Normal`  
+- `Non-COVID (Pneumonia)`
+
+For details on dataset preprocessing and splits, see the [COVID Transformer repository](https://github.com/mahdaneh/COVID_transformer).  
+
+The repository includes scripts for:
+
+- Fine-tuning CLIP (with LoRA)  
+- Zero-shot classification  
+- Caption generation using BLIP (for CLIP fine-tuning)  
+- Dataset handling and evaluation
+
+---
 
 ## Background
 
-Large vision–language models such as **CLIP** enable
-zero-shot inference by learning aligned image and text embeddings
-from large-scale pretraining.  
-This project investigates
-how well such models generalize to
-**medical imaging domains**, particularly COVID-19 chest X-ray data,
-where distribution shift and domain mismatch are common challenges.
+Large vision–language models like **CLIP** enable zero-shot inference by learning aligned image and text embeddings from large-scale pretraining.  
+
+This project investigates **how well CLIP generalizes to medical imaging**, particularly COVID-19 chest X-rays, where **domain shift** is a major challenge.
+
+---
 
 ## Methodology
-To evaluate zero-shot ability of a pre-trained CLIP (weights from openAI), we use it as is on the test set to classify chest x-ray images (first row in table).
 
-Then, we fine-tune the entire CLIP model (both vision and text encoders) on the training set of COVID x-ray images with corresponding text labels (used BLIP for caption generation, we simply add the true class of each image to its generated caption).
-For fine-tuning, we use LORA with rank 4(r=4) for both vision and text encoders, more precisely the weights of self-attention layers, i.e. `v_proj, q_proj` and MLP layers, i.e. `fc1, fc2` are updated during training.
+1. **Zero-shot CLIP:**  
+   Applied pre-trained CLIP directly on the test set to classify chest X-ray images.
 
-To accommodate data on NVIDIA RTX 4060 Laptop GPU, we have to use a small batch size (80) during fine-tuning of CLIP. 
-Note, to have the effect of a larger batch size, we could not use batch accumulation as contrastive loss is batch dependent. To see the result, look at the 2nd row of the following table.
+2. **Fine-tuning CLIP:**  
+   - Fine-tuned the full CLIP model (vision + text encoders) on the training set.  
+   - Used BLIP for caption generation and appended the true class label to each image caption.  
+   - Applied **LoRA** (rank `r=4`) to self-attention layers (`v_proj`, `q_proj`) and MLP layers (`fc1`, `fc2`).  
+   - Batch size was limited to 80 due to GPU memory (NVIDIA RTX 4060 Laptop). Batch accumulation could not be used due to contrastive loss dependence on batch statistics.
 
-Finally, we used CLS token of CLIP vision encoder (pre-trained by OpenAI) to train a simple classifier head (a linear layer followed by softmax) to classify the images. We called it classifier.
+3. **Classifier on CLIP Vision Encoder:**  
+   - Used the CLS token of the CLIP vision encoder (frozen)  
+   - Trained a simple **linear classifier with softmax** on top  
+   - This approach outperformed both zero-shot and fine-tuned CLIP models
 
+---
 
-As the results in the following table indicate, the classifier head trained on top of the CLIP vision encoder outperforms both zero-shot and fine-tuned CLIP models. Note due to CPU's memory restriction, we could not fine-tune CLIP with larger batch sizes, which might have improved its performance.
+## Results
 
-## Results and explanation
+| Method                             | Accuracy | F1-score | Precision | Recall |
+|------------------------------------|---------|----------|-----------|--------|
+| CLIP (zero-shot)                    | 31.57   | 16.35    | 28.23     | 33.36 |
+| CLIP (fine-tuned)                   | 57.72   | 54.47    | 59.62     | 58.01 |
+| Classifier on CLIP Vision Encoder   | 87.8    | 87.78    | 88.25     | 88.0  |
 
+---
 
-| Method                                                 | Acc   | f1-score | Precision | Recall |
-|--------------------------------------------------------|-------|----------|-----------|--------|
-| CLIP (openAI)                                          | 31.57 | 16.35    | 28.23     |33.36|
-| CLIP ( fine-tuned)                                     | 57.72 | 54.47    | 59.62     |58.01|
-| Classifier-- CLIPVisionEncoder fixed | 87.8  | 87.78    | 88.25     |88.0|
+## Conclusion
 
+- **Zero-shot CLIP is insufficient** for COVID-19 X-ray classification due to domain shift.  
+- Fine-tuning CLIP improves results, but the **best performance comes from a classifier on top of the frozen CLIP vision encoder**.  
+- This approach is especially practical for **limited-resource devices** with low GPU memory.  
+- Overall, CLIP provides a strong foundation, but **specialized adaptation is necessary** for medical imaging tasks.
 
-## Coclusion
-We **could not simply rely on the zero-shot capabilities** of CLIP for COVID-19 chest X-ray classification, as its performance was suboptimal. 
-Fine-tuning the entire CLIP model improved results, but the best performance was achieved by training a dedicated classifier head on top of the fixed CLIP vision encoder.
-This suggests that while CLIP provides a strong foundation, specialized adaptation is necessary for optimal performance in medical imaging tasks.
-Therefore, we show zero-shot inference (without fine-tuning on a specific dataset) **can not** offer a consistent accuracy when there is a shift in data distribution.
-specifically, medical images are very different from natural images that CLIP is trained on.
+---
+
+**Key Insight:**  
+Zero-shot inference **cannot provide consistent accuracy** in domains where the data distribution differs from pretraining (e.g., medical images vs. natural images).
