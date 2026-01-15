@@ -39,9 +39,8 @@ This project investigates **how well CLIP generalizes to medical imaging**, part
    Applied pre-trained CLIP directly on the test set to classify chest X-ray images.
 
 2. **Fine-tuning CLIP:**  
-   - Fine-tuned the full CLIP model (vision + text encoders) on the training set.  
-   - Used BLIP for caption generation and appended the true class label to each image caption.  
-   - Applied **LoRA** (rank `r=4`) to self-attention layers (`v_proj`, `q_proj`) and MLP layers (`fc1`, `fc2`).  
+   - Fine-tuned the full CLIP model (vision + text encoders) on the training set using LORA (r=4) on (`v_proj`, `q_proj`) and MLP layers (`fc1`, `fc2`)  
+   - Used BLIP for caption generation and appended the true class label to each image caption.
    - Batch size was limited to 80 due to GPU memory (NVIDIA RTX 4060 Laptop). Batch accumulation could not be used due to contrastive loss dependence on batch statistics.
 
 3. **Classifier on CLIP Vision Encoder:**  
@@ -52,12 +51,39 @@ This project investigates **how well CLIP generalizes to medical imaging**, part
 ---
 
 ## Results
+Besides comparing the methods mentioned above, we also considered
+baseline CNN model (Resnet18) and ViT_b_16, which are fine-tuned on the same dataset (
+Read more [here](https://github.com/mahdaneh/COVID_transformer) ).
 
-| Method                             | Accuracy | F1-score | Precision | Recall |
-|------------------------------------|---------|----------|-----------|--------|
-| CLIP (zero-shot)                    | 31.57   | 16.35    | 28.23     | 33.36 |
-| CLIP (fine-tuned)                   | 57.72   | 54.47    | 59.62     | 58.01 |
-| Classifier on CLIP Vision Encoder   | 87.8    | 87.78    | 88.25     | 88.0  |
+Clearly, the pretrained CLIP model struggles with
+zero-shot classification- CLIP (zero-shot)- due to domain shift.
+Although fine-tuning CLIP 
+with LORA (batchsize=80) substantially enhances performance,
+still notably below the fully supervised end-to-end models. 
+This might be caused by the limited batch size during fine-tuning, which is crucial for contrastive learning.
+
+
+The best performing method is training a simple classifier on
+top of the frozen pretrained CLIP vision encoder.
+Freezing the CLIP vision encoder and training a lightweight
+classifier yields the strongest results. This suggests:
+
+- **CLIP’s visual representations are strong and transferable**
+
+- The main limitation lies in zero-shot text–image matching, not the visual features themselves
+
+- Decoupling the vision encoder from the text encoder allows better task-specific discrimination
+
+**Main conclusion**: This result highlights that CLIP is most effective as a feature extractor, rather than as a zero-shot classifier for this task.**
+
+
+| Method                            | Accuracy | F1-score | Precision | Recall |
+|-----------------------------------|---------|----------|-----------|--------|
+| Resnet18 (fine-tuned)             | 82.56   | 82.37    | 82.66     | 82.41 |
+| ViT_b_16 (fine-tuned)             | 87.51   | 82.37    | 87.45    | 87.37 |
+| CLIP (zero-shot)                  | 31.57   | 16.35    | 28.23     | 33.36 |
+| CLIP (fine-tuned with bs=80)      | 57.72   | 54.47    | 59.62     | 58.01 |
+| Classifier on CLIP Vision Encoder | 87.8    | 87.78    | 88.25     | 88.0  |
 
 ---
 
