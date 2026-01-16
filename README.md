@@ -44,7 +44,8 @@ This project investigates **how well CLIP generalizes to medical imaging**, part
    - Batch size was limited to 80 due to GPU memory (NVIDIA RTX 4060 Laptop). Batch accumulation could not be used due to contrastive loss dependence on batch statistics.
 
 3. **Classifier on CLIP Vision Encoder:**  
-   - Used the CLS token of the CLIP vision encoder (frozen)  
+   - Used the CLS token of the CLIP vision encoder (frozen). We used CLIP models pretrained on both ImageNet (CLIP_ImageNet)
+   and fine-tuned CLIP (i.e. method 2) on X-ray datasets(CLIP_Xray).
    - Trained a simple **linear classifier with softmax** on top  
    - This approach outperformed both zero-shot and fine-tuned CLIP models
 
@@ -58,33 +59,39 @@ Read more [here](https://github.com/mahdaneh/COVID_transformer) ).
 Clearly, the pretrained CLIP model struggles with
 zero-shot classification- CLIP (zero-shot)- due to domain shift.
 Although fine-tuning CLIP 
-with LORA (batchsize=80) substantially enhances performance,
-still notably below the fully supervised end-to-end models. 
-This might be caused by the limited batch size during fine-tuning, which is crucial for contrastive learning.
+with LORA (batchsize=80) substantially enhances its performance,
+still notably below the fully supervised end-to-end models (ViT_b_16 and Resnet18). 
+This might be caused by the limited batch size during fine-tuning, which is crucial for contrastive learning. We could not use larger batch sizes due 
+to GPU memory constraints.
 
+We found training a simple classifier on top of the frozen fully pretrained CLIP (CLIP_ImageNet) vision encoder
+yields the promising results, explaining that CLIP's visual representations are **strong and transferable**.
+However, the best performance is achieved by the classifier on top of fined-tuned CLIP (CLIP_Xray) vision encoder,
+indicating that **adapting the vision encoder** to the medical domain further boosts performance. 
+This shows partially training (with LORA) CLIP text and vision encoders on the target domain (Xray images)
+can lead to a better aligned embedded
+feature space, resulting in improved classification performance.
 
-The best performing method is training a simple classifier on
-top of the frozen pretrained CLIP vision encoder.
-Freezing the CLIP vision encoder and training a lightweight
-classifier yields the strongest results. This suggests:
-
+These findings suggest:
 - **CLIP’s visual representations are strong and transferable**
 
 - The main limitation lies in zero-shot text–image matching, not the visual features themselves
 
 - Decoupling the vision encoder from the text encoder allows better task-specific discrimination
+- Domain adaptation of the vision encoder yields substantial performance gains
 
-**Main conclusion**: This result highlights that CLIP is most effective as a feature extractor, rather than as a zero-shot classifier for this task.**
+**Main conclusion**: This result highlights that CLIP
+is most effective as a feature extractor, rather than as a zero-shot classifier for this task.
 
 
-| Method                            | Accuracy | F1-score | Precision | Recall |
-|-----------------------------------|---------|----------|-----------|--------|
-| Resnet18 (fine-tuned)             | 82.56   | 82.37    | 82.66     | 82.41 |
-| ViT_b_16 (fine-tuned)             | 87.51   | 82.37    | 87.45    | 87.37 |
-| CLIP (zero-shot)                  | 31.57   | 16.35    | 28.23     | 33.36 |
-| CLIP (fine-tuned with bs=80)      | 57.72   | 54.47    | 59.62     | 58.01 |
-| Classifier on CLIP Vision Encoder | 87.8    | 87.78    | 88.25     | 88.0  |
-
+| Method                                   | Accuracy  | F1-score  | Precision | Recall    |
+|------------------------------------------|-----------|-----------|-----------|-----------|
+| Resnet18 (fine-tuned)                    | 82.56     | 82.37     | 82.66     | 82.41     |
+| ViT_b_16 (fine-tuned)                    | 87.51     | 82.37     | 87.45     | 87.37     |
+| CLIP_ImageNet (zero-shot)                | 31.57     | 16.35     | 28.23     | 33.36     |
+| CLIP_Xray (fine-tuned,LORA,bs=80)        | 57.72     | 54.47     | 59.62     | 58.01     |
+| Classifier on CLIP_ImageNet Vision Encoder | 87.8      | 87.78     | 88.25     | 88.0      |
+| Classifier on CLIP_Xray Vision Encoder   | **92.44** | **92.41** | **92.55** | **92.51** |
 ---
 
 ## Conclusion
