@@ -87,7 +87,7 @@ is most effective as a feature extractor, rather than as a zero-shot classifier 
 | Method                                   | Accuracy  | F1-score  | Precision | Recall    |
 |------------------------------------------|-----------|-----------|-----------|-----------|
 | Resnet18 (fine-tuned)                    | 82.56     | 82.37     | 82.66     | 82.41     |
-| ViT_b_16 (fine-tuned)                    | 87.51     | 82.37     | 87.45     | 87.37     |
+| ViT_b_16 (fine-tuned)                    | 87.51     | 87.33     | 87.45     | 87.37     |
 | CLIP_ImageNet (zero-shot)                | 31.57     | 16.35     | 28.23     | 33.36     |
 | CLIP_Xray (fine-tuned,LORA,bs=80)        | 57.72     | 54.47     | 59.62     | 58.01     |
 | Classifier on CLIP_ImageNet Vision Encoder | 87.8      | 87.78     | 88.25     | 88.0      |
